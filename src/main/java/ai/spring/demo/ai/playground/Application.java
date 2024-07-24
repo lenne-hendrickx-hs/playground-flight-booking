@@ -1,5 +1,7 @@
 package ai.spring.demo.ai.playground;
 
+import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.theme.Theme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -13,11 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.client.RestClientCustomizer;
+import org.springframework.boot.web.reactive.function.client.WebClientCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
-
-import com.vaadin.flow.component.page.AppShellConfigurator;
-import com.vaadin.flow.theme.Theme;
 
 @SpringBootApplication
 @Theme(value = "customer-support-agent")
@@ -57,4 +58,15 @@ public class Application implements AppShellConfigurator {
 	public ChatMemory chatMemory() {
 		return new InMemoryChatMemory();
 	}
+
+	@Bean
+	RestClientCustomizer restClientCustomizer() {
+		return restClientBuilder -> restClientBuilder.defaultHeader("identity-name", "hackathon");
+    }
+
+	@Bean
+	WebClientCustomizer webClientCustomizer() {
+		return webClientBuilder -> webClientBuilder.defaultHeader("identity-name", "hackathon");
+	}
+
 }
