@@ -1,5 +1,5 @@
-import React, {useRef, useEffect, useState} from 'react';
-import Message, {MessageItem} from './Message';
+import React, {useEffect, useRef, useState} from 'react';
+import {MessageItem} from './Message';
 import {AssistantService} from "../generated/endpoints";
 import {MessageInput} from "@vaadin/react-components/MessageInput";
 import MessageList from "./MessageList";
@@ -11,12 +11,9 @@ interface ChatProps {
     style?: React.CSSProperties;
 }
 
-export default function Chat({chatId, className, style}: ChatProps) {
+export default function AgentChat({chatId, className, style}: ChatProps) {
     const endOfMessagesRef = useRef<HTMLDivElement>(null);
-    const [messages, setMessages] = useState<MessageItem[]>([{
-        role: 'AGENT',
-        text: 'Welcome to Brianair! How can I help you?'
-    }]);
+    const [messages, setMessages] = useState<MessageItem[]>([]);
     const [working, setWorking] = useState(false);
 
     useEffect(() => {
@@ -25,6 +22,11 @@ export default function Chat({chatId, className, style}: ChatProps) {
                 addMessage(message);
                 setWorking(false);
             });
+            // Send welcome message
+            AssistantService.chat(chatId, {
+                role: ChatRole.AGENT,
+                text: 'Welcome to Brianair! How can I help you?'
+            })
         }, []);
 
 // Automatically scroll down whenever the messages change
@@ -48,8 +50,11 @@ export default function Chat({chatId, className, style}: ChatProps) {
 
     return (
         <div className={className} style={style}>
-            <h3>Brianair customer</h3>
-            <MessageList messages={messages} className="flex-grow overflow-scroll"/>
+            <h3>Brianair agent</h3>
+            <MessageList
+                messages={messages}
+                className="flex-grow overflow-scroll"
+                messageTitleMapper={message => message.role === 'AGENT' ? '🤖 You' : '🧑‍💻 Customer'} />
             <MessageInput onSubmit={e => sendMessage(e.detail.value)} className="px-0" disabled={working}/>
         </div>
     );
