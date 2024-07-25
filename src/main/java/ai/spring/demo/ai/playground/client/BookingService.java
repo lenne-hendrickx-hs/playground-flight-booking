@@ -7,6 +7,8 @@ import java.util.List;
 
 import ai.spring.demo.ai.playground.services.BookingTools.BookingDetails;
 import ai.spring.demo.ai.playground.services.FlightBookingService;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
 @BrowserCallable
 @AnonymousAllowed
@@ -19,5 +21,9 @@ public class BookingService {
 
     public List<BookingDetails> getBookings() {
         return flightBookingService.getBookings();
+    }
+
+    public Flux<List<BookingDetails>> join() {
+        return flightBookingService.join();
     }
 }

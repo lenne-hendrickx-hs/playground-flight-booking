@@ -4,14 +4,20 @@ import ai.spring.demo.ai.playground.data.*;
 import ai.spring.demo.ai.playground.services.BookingTools.BookingDetails;
 
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static reactor.core.publisher.Sinks.EmitResult.FAIL_NON_SERIALIZED;
+
 @Service
 public class FlightBookingService {
+
+    private final Sinks.Many<List<BookingDetails>> bookingSink;
 
     private final BookingData db;
 
@@ -19,6 +25,8 @@ public class FlightBookingService {
         db = new BookingData();
 
         initDemoData();
+        bookingSink = Sinks.many().multicast().directBestEffort();
+        sendBookings();
     }
 
     private void initDemoData() {
@@ -56,6 +64,15 @@ public class FlightBookingService {
 
     public List<BookingDetails> getBookings() {
         return db.getBookings().stream().map(this::toBookingDetails).toList();
+    }
+
+
+    private void sendBookings() {
+        bookingSink.emitNext(getBookings(), (signalType, emitResult) -> (emitResult == FAIL_NON_SERIALIZED));
+    }
+
+    public Flux<List<BookingDetails>> join() {
+        return bookingSink.asFlux();
     }
 
     private Booking findBooking(String bookingNumber, String firstName, String lastName) {
