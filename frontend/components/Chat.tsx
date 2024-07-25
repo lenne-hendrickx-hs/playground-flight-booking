@@ -4,13 +4,13 @@ import {AssistantService} from "../generated/endpoints";
 import {MessageInput} from "@vaadin/react-components/MessageInput";
 import MessageList from "./MessageList";
 
-interface MessageListProps {
+interface ChatProps {
     chatId: string;
     className?: string;
     style?: React.CSSProperties;
 }
 
-export default function Chat({chatId, className, style}: MessageListProps) {
+export default function Chat({chatId, className, style}: ChatProps) {
     const endOfMessagesRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<MessageItem[]>([{
         role: 'assistant',

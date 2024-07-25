@@ -26,7 +26,6 @@ public class FlightBookingService {
 
         initDemoData();
         bookingSink = Sinks.many().multicast().directBestEffort();
-        sendBookings();
     }
 
     private void initDemoData() {
