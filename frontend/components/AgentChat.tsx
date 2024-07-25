@@ -30,9 +30,9 @@ export default function AgentChat({chatId, className, style}: ChatProps) {
                 role: ChatRole.AGENT,
                 text: 'Welcome to Brianair! How can I help you?'
             })
-        AssistantService.suggestedReplies().onNext(message => {
-            setReplies(replies => message)
-        });
+            AssistantService.suggestedReplies().onNext(message => {
+                setReplies(replies => message)
+            });
         }, []);
 
 // Automatically scroll down whenever the messages change

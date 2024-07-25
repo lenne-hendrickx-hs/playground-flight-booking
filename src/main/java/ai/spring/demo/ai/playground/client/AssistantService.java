@@ -1,6 +1,7 @@
 package ai.spring.demo.ai.playground.client;
 
 import ai.spring.demo.ai.playground.data.ChatMessage;
+import ai.spring.demo.ai.playground.data.ChatMessageEvent;
 import ai.spring.demo.ai.playground.services.CustomerSupportAssistant;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -23,7 +24,7 @@ public class AssistantService {
         agent.chat(chatId, message);
     }
 
-    public Flux<ChatMessage> join() {
+    public Flux<ChatMessageEvent> join() {
         return agent.join();
     }
 

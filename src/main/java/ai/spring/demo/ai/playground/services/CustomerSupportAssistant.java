@@ -17,6 +17,7 @@
 package ai.spring.demo.ai.playground.services;
 
 import ai.spring.demo.ai.playground.data.ChatMessage;
+import ai.spring.demo.ai.playground.data.ChatMessageEvent;
 import ai.spring.demo.ai.playground.data.ChatRole;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
@@ -42,7 +43,7 @@ import static reactor.core.publisher.Sinks.EmitResult.FAIL_NON_SERIALIZED;
 @Service
 public class CustomerSupportAssistant {
 
-	private final Sinks.Many<ChatMessage> chatSink;
+	private final Sinks.Many<ChatMessageEvent> chatSink;
 	private final Sinks.Many<List<ChatMessage>> suggestedRepliesSink;
 
 	private final ChatClient chatClient;
@@ -83,7 +84,7 @@ public class CustomerSupportAssistant {
 		suggestedRepliesSink = Sinks.many().multicast().directBestEffort();
     }
 
-	public Flux<ChatMessage> join() {
+	public Flux<ChatMessageEvent> join() {
 		return chatSink.asFlux();
 	}
 
@@ -116,7 +117,7 @@ public class CustomerSupportAssistant {
 
 	private void send(String chatId, ChatMessage message) {
 		// TODO: have a sink per chatId
-		chatSink.emitNext(message, (signalType, emitResult) -> (emitResult == FAIL_NON_SERIALIZED));
+		chatSink.emitNext(ChatMessageEvent.from(message), (signalType, emitResult) -> (emitResult == FAIL_NON_SERIALIZED));
 	}
 
 	private void suggestReplies(String chatId, ChatMessage message) {
