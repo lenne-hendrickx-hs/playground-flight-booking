@@ -49,6 +49,11 @@
 			<artifactId>spring-ai-openai-spring-boot-starter</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-opensearch-store-spring-boot-starter</artifactId>
+		</dependency>
+
 		<!-- Standalone Embedding Model. To be used in combination with the Athropic, Groq, Vertex Geminie chat models -->
 		<!-- <dependency>
 			<groupId>org.springframework.ai</groupId>

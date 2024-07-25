@@ -1,20 +1,17 @@
-networks:
-  net:
-    driver: bridge
 services:
-  server:
-    image: ghcr.io/chroma-core/chroma:latest
+  opensearch:
+    image: docker-registry.hootops.com/opensearchproject/opensearch:2.15.0
     environment:
-      - IS_PERSISTENT=TRUE
-    volumes:
-      # Default configuration for persist_directory in chromadb/config.py
-      # Currently it's located in "/chroma/chroma/"
-      - chroma-data:/chroma/chroma/
+      - http.port=9200
+      - discovery.type=single-node
+      - cluster.name=opensearch
+      - bootstrap.memory_lock=true
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - "OPENSEARCH_JAVA_OPTS=-Xms1G -Xmx1G"
+      - DISABLE_SECURITY_PLUGIN=true
     ports:
-      - 8000:8000
-    networks:
-      - net
-
-volumes:
-  chroma-data:
-    driver: local
+      - 9200:9200
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
