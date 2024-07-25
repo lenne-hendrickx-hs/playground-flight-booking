@@ -18,6 +18,7 @@ package ai.spring.demo.ai.playground.services;
 
 import java.time.LocalDate;
 
+import ai.spring.demo.ai.playground.data.ChatMessage;
 import reactor.core.publisher.Flux;
 
 import org.springframework.ai.chat.client.ChatClient;
@@ -39,7 +40,7 @@ import static reactor.core.publisher.Sinks.EmitResult.FAIL_NON_SERIALIZED;
 @Service
 public class CustomerSupportAssistant {
 
-	private final Sinks.Many<String> chatSink;
+	private final Sinks.Many<ChatMessage> chatSink;
 
 	private final ChatClient chatClient;
 
@@ -77,20 +78,19 @@ public class CustomerSupportAssistant {
         chatSink = Sinks.many().multicast().directBestEffort();
     }
 
-	public Flux<String> join() {
+	public Flux<ChatMessage> join() {
 		return chatSink.asFlux();
 	}
 
-	public void chat(String chatId, String userMessageContent) {
-		var aiReply = generateAiReply(chatId, userMessageContent);
-		send(aiReply);
+	public void chat(String chatId, ChatMessage message) {
+		send(chatId, message);
 	}
 
-	private String generateAiReply(String chatId, String userMessageContent) {
+	private String generateAiReply(String chatId, ChatMessage message) {
 		try {
 			return this.chatClient.prompt()
 					.system(s -> s.param("current_date", LocalDate.now().toString()))
-					.user(userMessageContent)
+					.user(message.text())
 					.advisors(a -> a
 							.param(QuestionAnswerAdvisor.FILTER_EXPRESSION, "organizationId == '123'")
 							.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
@@ -102,7 +102,8 @@ public class CustomerSupportAssistant {
 		}
 	}
 
-	private void send(String message) {
+	private void send(String chatId, ChatMessage message) {
+		// TODO: have a sink per chatId
 		chatSink.emitNext(message, (signalType, emitResult) -> (emitResult == FAIL_NON_SERIALIZED));
 	}
 }

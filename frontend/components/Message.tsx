@@ -1,8 +1,8 @@
 import Markdown from "react-markdown";
 
 export interface MessageItem {
-  role: 'user' | 'assistant';
-  content: string;
+  role: 'AGENT' | 'CONTACT';
+  text: string;
 }
 
 interface MessageProps {
@@ -12,10 +12,10 @@ interface MessageProps {
 export default function Message({message}: MessageProps) {
   return (
     <div className="mb-l">
-      <div className="font-bold">{message.role === 'user' ? '🧑‍💻 You' : '🤖 Assistant'}</div>
+      <div className="font-bold">{message.role === 'CONTACT' ? '🧑‍💻 You' : '🤖 Assistant'}</div>
       <div>
         <Markdown>
-          {message.content}
+          {message.text}
         </Markdown>
       </div>
     </div>

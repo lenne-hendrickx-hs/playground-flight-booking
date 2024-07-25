@@ -3,6 +3,7 @@ import Message, {MessageItem} from './Message';
 import {AssistantService} from "../generated/endpoints";
 import {MessageInput} from "@vaadin/react-components/MessageInput";
 import MessageList from "./MessageList";
+import ChatRole from "../generated/ai/spring/demo/ai/playground/data/ChatRole";
 
 interface ChatProps {
     chatId: string;
@@ -13,23 +14,20 @@ interface ChatProps {
 export default function Chat({chatId, className, style}: ChatProps) {
     const endOfMessagesRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<MessageItem[]>([{
-        role: 'assistant',
-        content: 'Welcome to Brianair! How can I help you?'
+        role: 'AGENT',
+        text: 'Welcome to Brianair! How can I help you?'
     }]);
     const [working, setWorking] = useState(false);
 
     useEffect(() => {
-        // Join the chat channel
-        AssistantService.join().onNext(message => {
-            addMessage({
-                role: 'assistant',
-                content: message
+            // Join the chat channel
+            AssistantService.join().onNext(message => {
+                addMessage(message);
+                setWorking(false);
             });
-            setWorking(false);
-        })
-    }, []);
+        }, []);
 
-    // Automatically scroll down whenever the messages change
+// Automatically scroll down whenever the messages change
     useEffect(() => {
         if (endOfMessagesRef.current) {
             endOfMessagesRef.current.scrollIntoView({behavior: 'smooth'});
@@ -42,11 +40,10 @@ export default function Chat({chatId, className, style}: ChatProps) {
 
     async function sendMessage(message: string) {
         setWorking(true);
-        addMessage({
-            role: 'user',
-            content: message
+        await AssistantService.chat(chatId, {
+            role: ChatRole.AGENT,
+            text: message
         });
-        await AssistantService.chat(chatId, message);
     }
 
     return (
