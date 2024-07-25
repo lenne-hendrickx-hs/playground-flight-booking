@@ -11,8 +11,8 @@ export default function Index() {
     return (
         <SplitLayout className="h-full">
             <ContactChat chatId={chatId} className="flex flex-col gap-m p-m box-border h-full" style={{width: '30%'}} />
-            <AgentChat chatId={chatId} className="flex flex-col gap-m p-m box-border h-full" style={{width: '30%'}} />
             <BookingList className="flex flex-col gap-m p-m box-border" style={{width: '40%'}} />
+            <AgentChat chatId={chatId} className="flex flex-col gap-m p-m box-border h-full" style={{width: '30%'}} />
         </SplitLayout>
 
     );
