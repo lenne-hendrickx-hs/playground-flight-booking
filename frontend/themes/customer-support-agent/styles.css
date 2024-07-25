@@ -1,0 +1,44 @@
+.conversation vaadin-message.current-user {
+    margin-left: var(--lumo-space-l);
+}
+
+.conversation vaadin-message.other-user {
+    margin-right: var(--lumo-space-l);
+}
+
+.conversation vaadin-message {
+    margin-bottom: var(--lumo-space-m);
+}
+
+vaadin-message.current-user {
+    background-color: #d5e1eb;
+}
+
+vaadin-message.other-user {
+    background-color: #e3ddd8;
+}
+
+vaadin-message {
+    color: #222;
+    border-radius: 9px;
+    font-weight: normal;
+}
+
+vaadin-message.current-user::part(name) {
+    font-weight: 900;
+}
+vaadin-message.current-user::part(time) {
+    color: #000;
+}
+
+.suggested-replies {
+}
+
+.suggested-reply {
+    color: #222;
+    border-radius: 9px;
+    font-weight: normal;
+    padding: var(--lumo-space-s) var(--lumo-space-m);
+    cursor: pointer;
+    background-color: #d5e1eb;
+}

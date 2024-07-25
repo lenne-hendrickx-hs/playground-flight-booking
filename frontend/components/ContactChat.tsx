@@ -1,9 +1,11 @@
 import React, {useRef, useEffect, useState} from 'react';
-import Message, {MessageItem} from './Message';
 import {AssistantService} from "../generated/endpoints";
 import {MessageInput} from "@vaadin/react-components/MessageInput";
-import MessageList from "./MessageList";
+import AgentMessageList from "./AgentMessageList";
 import ChatRole from "../generated/ai/spring/demo/ai/playground/data/ChatRole";
+import ChatMessage from "../generated/ai/spring/demo/ai/playground/data/ChatMessage";
+import ContactMessageList from "./ContactMessageList";
+import ChatMessageEvent from "../generated/ai/spring/demo/ai/playground/data/ChatMessageEvent";
 
 interface ChatProps {
     chatId: string;
@@ -13,7 +15,7 @@ interface ChatProps {
 
 export default function ContactChat({chatId, className, style}: ChatProps) {
     const endOfMessagesRef = useRef<HTMLDivElement>(null);
-    const [messages, setMessages] = useState<MessageItem[]>([]);
+    const [messages, setMessages] = useState<ChatMessageEvent[]>([]);
     const [working, setWorking] = useState(false);
 
     useEffect(() => {
@@ -31,7 +33,7 @@ export default function ContactChat({chatId, className, style}: ChatProps) {
         }
     }, [messages]);
 
-    function addMessage(message: MessageItem) {
+    function addMessage(message: ChatMessageEvent) {
         setMessages(messages => [...messages, message]);
     }
 
@@ -45,11 +47,10 @@ export default function ContactChat({chatId, className, style}: ChatProps) {
 
     return (
         <div className={className} style={style}>
-            <h3>Brianair customer</h3>
-            <MessageList
+            <h3>Bryanair customer</h3>
+            <ContactMessageList
                 messages={messages}
-                className="flex-grow overflow-scroll"
-                messageTitleMapper={message => message.role === 'CONTACT' ? '🧑‍💻 You' : '🤖 Customer support agent'} />
+                className="flex-grow overflow-scroll" />
             <MessageInput onSubmit={e => sendMessage(e.detail.value)} className="px-0" disabled={working}/>
         </div>
     );

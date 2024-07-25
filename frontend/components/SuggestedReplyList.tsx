@@ -1,12 +1,13 @@
-import React, { useRef, useEffect } from 'react';
-import SuggestedReply, {SuggestedReplyItem} from './SuggestedReply';
+import React, {useEffect, useRef} from 'react';
+import SuggestedReply, {SuggestedReplyItem} from "./SuggestedReply";
 
 interface SuggestedReplyListProps {
-  messages: SuggestedReplyItem[];
+  suggestedReplies: SuggestedReplyItem[];
   className?: string;
+  onReplySelected?: (text: string) => void
 }
 
-export default function SuggestedReplyList({ messages, className }: SuggestedReplyListProps) {
+export default function SuggestedReplyList({ suggestedReplies, className, onReplySelected }: SuggestedReplyListProps) {
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
   // Automatically scroll down whenever the messages change
@@ -14,12 +15,12 @@ export default function SuggestedReplyList({ messages, className }: SuggestedRep
     if (endOfMessagesRef.current) {
       endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [suggestedReplies]);
 
   return (
-    <div className={className}>
-      {messages.map((msg, index) => (
-        <SuggestedReply key={index} message={msg} />
+    <div className={`suggested-replies ${className}`}>
+      {suggestedReplies.map((reply, index) => (
+        <SuggestedReply key={index} suggestedReply={reply} className={'mb-m'} onReplySelected={onReplySelected}/>
       ))}
       <div ref={endOfMessagesRef} />
     </div>
