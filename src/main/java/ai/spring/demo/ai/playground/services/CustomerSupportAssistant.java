@@ -16,21 +16,21 @@
 
 package ai.spring.demo.ai.playground.services;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import ai.spring.demo.ai.playground.data.ChatMessage;
 import ai.spring.demo.ai.playground.data.ChatRole;
-import reactor.core.publisher.Flux;
-
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
+
+import java.time.LocalDate;
+import java.util.List;
 
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
@@ -54,6 +54,7 @@ public class CustomerSupportAssistant {
 				.defaultSystem("""
 						You are a customer chat support agent of an airline named "Brianair"."
 						Respond in a friendly, helpful, and joyful manner.
+						Always generate 3 possible responses, worded differently. One response should be cheerful, with lots of excitement and sprinkled with emojis. Another response should be formal and concise. The last response should use a chuck norris meme.
 						You are interacting with customers through an online chat system.
 						Before providing information about a booking or cancelling a booking, you MUST always
 						get the following information from the user: booking number, customer first name and last name.
@@ -95,9 +96,10 @@ public class CustomerSupportAssistant {
 		suggestReplies(chatId, message);
 	}
 
-	private String generateAiReply(String chatId, ChatMessage message) {
+	private List<String> generateAiReply(String chatId, ChatMessage message) {
 		try {
 			return this.chatClient.prompt()
+//					.options(OpenAiChatOptions.builder().withN(3).build())
 					.system(s -> s.param("current_date", LocalDate.now().toString()))
 					.user(message.text())
 					.advisors(a -> a
@@ -105,9 +107,10 @@ public class CustomerSupportAssistant {
 							.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
 							.param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
 					.call()
-					.content();
+					.entity(new ParameterizedTypeReference<List<String>>() {
+					});
 		} catch (Exception e) {
-			return e.getMessage();
+			return List.of(e.getMessage());
 		}
 	}
 
@@ -119,7 +122,9 @@ public class CustomerSupportAssistant {
 	private void suggestReplies(String chatId, ChatMessage message) {
 		// TODO: have a sink per chatId
 		if (message.role() == ChatRole.CONTACT) {
-            emitSuggestions(List.of(new ChatMessage(ChatRole.AGENT, generateAiReply(chatId, message))));
+			var replies = generateAiReply(chatId, message).stream().map(text -> new ChatMessage(ChatRole.AGENT, text)).toList();
+			System.out.println("replies = " + replies);
+			emitSuggestions(replies);
 		} else {
 			emitSuggestions(List.of());
 		}
