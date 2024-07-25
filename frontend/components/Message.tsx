@@ -7,12 +7,13 @@ export interface MessageItem {
 
 interface MessageProps {
   message: MessageItem;
+  title: string
 }
 
-export default function Message({message}: MessageProps) {
+export default function Message({message, title}: MessageProps) {
   return (
     <div className="mb-l">
-      <div className="font-bold">{message.role === 'CONTACT' ? '🧑‍💻 You' : '🤖 Assistant'}</div>
+      <div className="font-bold">{title}</div>
       <div>
         <Markdown>
           {message.text}
