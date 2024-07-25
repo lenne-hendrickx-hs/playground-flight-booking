@@ -16,7 +16,11 @@ public class AssistantService {
         this.agent = agent;
     }
 
-    public Flux<String> chat(String chatId, String userMessage) {
-        return agent.chat(chatId, userMessage);
+    public void chat(String chatId, String userMessage) {
+        agent.chat(chatId, userMessage);
+    }
+
+    public Flux<String> join() {
+        return agent.join();
     }
 }

@@ -27,15 +27,19 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Sinks;
 
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
+import static reactor.core.publisher.Sinks.EmitResult.FAIL_NON_SERIALIZED;
 
 /**
  * * @author Christian Tzolov
  */
 @Service
 public class CustomerSupportAssistant {
+
+	private final Sinks.Many<String> chatSink;
 
 	private final ChatClient chatClient;
 
@@ -44,7 +48,7 @@ public class CustomerSupportAssistant {
 		// @formatter:off
 		this.chatClient = modelBuilder
 				.defaultSystem("""
-						You are a customer chat support agent of an airline named "Funnair"."
+						You are a customer chat support agent of an airline named "Brianair"."
 						Respond in a friendly, helpful, and joyful manner.
 						You are interacting with customers through an online chat system.
 						Before providing information about a booking or cancelling a booking, you MUST always
@@ -70,11 +74,21 @@ public class CustomerSupportAssistant {
 
 				.build();
 		// @formatter:on
+        chatSink = Sinks.many().multicast().directBestEffort();
+    }
+
+	public Flux<String> join() {
+		return chatSink.asFlux();
 	}
 
-	public Flux<String> chat(String chatId, String userMessageContent) {
+	public void chat(String chatId, String userMessageContent) {
+		var aiReply = generateAiReply(chatId, userMessageContent);
+		send(aiReply);
+	}
+
+	private String generateAiReply(String chatId, String userMessageContent) {
 		try {
-			return Flux.just(this.chatClient.prompt()
+			return this.chatClient.prompt()
 					.system(s -> s.param("current_date", LocalDate.now().toString()))
 					.user(userMessageContent)
 					.advisors(a -> a
@@ -82,9 +96,13 @@ public class CustomerSupportAssistant {
 							.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
 							.param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
 					.call()
-					.content());
+					.content();
 		} catch (Exception e) {
-			return Flux.just(e.getMessage());
+			return e.getMessage();
 		}
+	}
+
+	private void send(String message) {
+		chatSink.emitNext(message, (signalType, emitResult) -> (emitResult == FAIL_NON_SERIALIZED));
 	}
 }
