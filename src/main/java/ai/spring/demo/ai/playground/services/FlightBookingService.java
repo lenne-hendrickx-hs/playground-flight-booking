@@ -97,6 +97,7 @@ public class FlightBookingService {
         booking.setDate(LocalDate.parse(newDate));
         booking.setFrom(from);
         booking.setTo(to);
+        sendBookings();
     }
 
     public void cancelBooking(String bookingNumber, String firstName, String lastName) {
@@ -105,6 +106,7 @@ public class FlightBookingService {
             throw new IllegalArgumentException("Booking cannot be cancelled within 48 hours of the start date.");
         }
         booking.setBookingStatus(BookingStatus.CANCELLED);
+        sendBookings();
     }
 
     private BookingDetails toBookingDetails(Booking booking){
