@@ -17,8 +17,10 @@
 package ai.spring.demo.ai.playground.services;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import ai.spring.demo.ai.playground.data.ChatMessage;
+import ai.spring.demo.ai.playground.data.ChatRole;
 import reactor.core.publisher.Flux;
 
 import org.springframework.ai.chat.client.ChatClient;
@@ -41,6 +43,7 @@ import static reactor.core.publisher.Sinks.EmitResult.FAIL_NON_SERIALIZED;
 public class CustomerSupportAssistant {
 
 	private final Sinks.Many<ChatMessage> chatSink;
+	private final Sinks.Many<List<ChatMessage>> suggestedRepliesSink;
 
 	private final ChatClient chatClient;
 
@@ -76,14 +79,20 @@ public class CustomerSupportAssistant {
 				.build();
 		// @formatter:on
         chatSink = Sinks.many().multicast().directBestEffort();
+		suggestedRepliesSink = Sinks.many().multicast().directBestEffort();
     }
 
 	public Flux<ChatMessage> join() {
 		return chatSink.asFlux();
 	}
 
+	public Flux<List<ChatMessage>> suggestedReplies() {
+		return suggestedRepliesSink.asFlux();
+	}
+
 	public void chat(String chatId, ChatMessage message) {
 		send(chatId, message);
+		suggestReplies(chatId, message);
 	}
 
 	private String generateAiReply(String chatId, ChatMessage message) {
@@ -105,5 +114,18 @@ public class CustomerSupportAssistant {
 	private void send(String chatId, ChatMessage message) {
 		// TODO: have a sink per chatId
 		chatSink.emitNext(message, (signalType, emitResult) -> (emitResult == FAIL_NON_SERIALIZED));
+	}
+
+	private void suggestReplies(String chatId, ChatMessage message) {
+		// TODO: have a sink per chatId
+		if (message.role() == ChatRole.CONTACT) {
+            emitSuggestions(List.of(new ChatMessage(ChatRole.AGENT, generateAiReply(chatId, message))));
+		} else {
+			emitSuggestions(List.of());
+		}
+	}
+
+	private void emitSuggestions(List<ChatMessage> suggestions) {
+		suggestedRepliesSink.emitNext(suggestions, (signalType, emitResult) -> (emitResult == FAIL_NON_SERIALIZED));
 	}
 }

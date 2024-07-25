@@ -7,6 +7,8 @@ import com.vaadin.hilla.BrowserCallable;
 
 import reactor.core.publisher.Flux;
 
+import java.util.List;
+
 @BrowserCallable
 @AnonymousAllowed
 public class AssistantService {
@@ -23,5 +25,9 @@ public class AssistantService {
 
     public Flux<ChatMessage> join() {
         return agent.join();
+    }
+
+    public Flux<List<ChatMessage>> suggestedReplies() {
+        return agent.suggestedReplies();
     }
 }
