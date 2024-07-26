@@ -42,3 +42,11 @@ vaadin-message.current-user::part(time) {
     cursor: pointer;
     background-color: #d5e1eb;
 }
+
+.chat-header {
+    background-color: #222222;
+    color: #fff;
+    border-radius: 9px;
+    padding: var(--lumo-space-s) var(--lumo-space-m);
+    display: block;
+}

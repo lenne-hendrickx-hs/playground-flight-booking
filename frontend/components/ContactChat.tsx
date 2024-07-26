@@ -47,7 +47,7 @@ export default function ContactChat({chatId, className, style}: ChatProps) {
 
     return (
         <div className={className} style={style}>
-            <h3>Bryanair customer</h3>
+            <h3 className={'chat-header'}>Customer on Bryanair website</h3>
             <ContactMessageList
                 messages={messages}
                 className="flex-grow overflow-scroll" />

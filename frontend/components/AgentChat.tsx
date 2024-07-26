@@ -64,7 +64,8 @@ export default function AgentChat({chatId, className, style}: ChatProps) {
 
     return (
         <div className={className} style={style}>
-            <h3>Bryanair agent</h3>
+
+            <h3 className={'chat-header'}>Bryanair Inbox 2.0</h3>
 
             <AgentMessageList
                 messages={messages}
