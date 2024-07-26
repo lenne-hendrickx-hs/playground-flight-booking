@@ -31,7 +31,8 @@ vaadin-message.current-user::part(time) {
     color: #000;
 }
 
-.suggested-replies {
+.suggested-replies-title {
+    margin-bottom: var(--lumo-space-m);;
 }
 
 .suggested-reply {
